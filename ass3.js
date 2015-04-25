@@ -6,7 +6,8 @@
 
 var settings = null;
 var f_results = [];
-
+var i_results = [];
+var num_records_display = 0;
 
 function Gist(id, description, url) {
     this.id = id;
@@ -130,14 +131,22 @@ function delFromFaves(gid) {
 }
 
     
-function filterGists(arrRes, arrLang) {
+function filterGists(arrRes) {
     var filtered = [];
     var prog_lang;
-    for (var i = 0; i < arrRes.length; i++) {
+    
+    // get list of checked languages
+    var checkedLangs = [];
+    var checks = document.getElementsByName('langs[]');
+    for (var i = 0; i < checks.length; i++) {
+        if (checks[i].checked) checkedLangs.push(checks[i].value);
+    }
+     
+    for (var i = 0; i < num_records_display; i++) {
         for (var fkey in arrRes[i].files) {
             prog_lang = arrRes[i].files[fkey].language;
         }
-        if (!arrLang || arrLang.length == 0 ||  arrLang.indexOf(prog_lang) > -1) {
+        if (!checkedLangs || checkedLangs.length == 0 ||  checkedLangs.indexOf(prog_lang) > -1) {
             if (settings.faves && !(arrRes[i].id in settings.faves)) {
                 filtered.push(new Gist(arrRes[i].id, arrRes[i].description, arrRes[i].html_url));
             }
@@ -167,36 +176,9 @@ function createCORSRequest(method, url) {
 }
 
 
-function urlStringify(obj) {
-    var str = [];
-    for (var prop in obj) {
-        var s = encodeURIComponent(prop) + '=' + encodeURIComponent(obj[prop]);
-        str.push(s);
-    }
-    return str.join('&');
-}
-
-
-function getGists() {
-    var url = 'https://api.github.com/gists/public';
+function getGists2() {
+    var url = 'https://api.github.com/gists/public?page=2&per_page=75';
     
-    // get number of total records to get as selected page number * 30
-    var pages = document.getElementsByName('num_pages')[0].value;
-    if (pages > 5) pages = 5;
-    else if (pages < 1) pages = 1;
-    pages = pages * 30;
-    
-    // get list of checked languages
-    var checkedLangs = [];
-    var checks = document.getElementsByName('langs[]');
-    for (var i = 0; i < checks.length; i++) {
-        if (checks[i].checked) checkedLangs.push(checks[i].value);
-    }
-     
-    // make url to send
-    var params = { page: '1', per_page : pages };
-    url += '?' + urlStringify(params);
-     
     // make ajax call to get results
     var req = createCORSRequest('GET', url);
   	if (!req) {
@@ -206,8 +188,41 @@ function getGists() {
     
     req.onload = function() {
         if (this.status === 200) {
-            f_results = filterGists(JSON.parse(this.responseText), checkedLangs);
+            i_results = i_results.concat(JSON.parse(this.responseText));
+            f_results = filterGists(i_results);
             createInitTable(f_results, 'get_section', false);
+        } else {
+            alert('No 200 status... Error');
+        }
+    };
+    
+    req.onerror = function() {
+        alert('Woops, there was an error making the request.');
+    };
+
+    req.send();
+}
+
+function getGists1() {
+    var url = 'https://api.github.com/gists/public?page=1&per_page=75';
+    
+    // get number of total records to get as selected page number * 30
+    var pages = document.getElementsByName('num_pages')[0].value;
+    if (pages > 5) pages = 5;
+    else if (pages < 1) pages = 1;
+    num_records_display = pages * 30;
+    
+    // make ajax call to get results
+    var req = createCORSRequest('GET', url);
+  	if (!req) {
+        alert('CORS not supported');
+        return;
+    }
+    
+    req.onload = function() {
+        if (this.status === 200) {
+            i_results = JSON.parse(this.responseText);
+            getGists2();
         } else {
             alert('No 200 status... Error');
         }

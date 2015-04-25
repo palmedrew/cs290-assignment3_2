@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+
+	<!-- Andrew Palma 
+	     CS290
+	     23-Apr-2015
+	     
+	     template of this frame-like layout from quackit.com
+	 -->
+	 
+<html lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>CS290 Assignment 3 Part2</title>
+		<link rel="stylesheet" href="style.css">
+		<script src="ass3.js"></script>
+	</head>
+	
+	<body>		
+
+		<header id="header">
+			<div id="logo">
+				<h1>Request Public Gists</h1>
+			</div>
+			<section>
+              <div>
+                <label>Number pages to retrieve (1-5)</label>
+                <input type='number' name='num_pages' min='1' max='5' value='1'>
+              </div>
+              <fieldset>
+                <legend>Languages</legend>
+                  <label>Python</label>
+                  <input type="checkbox" name="langs[]" value='Python'>
+                  <label>JSON</label>
+                  <input type="checkbox" name="langs[]" value='JSON'>
+                  <label>JavaScript</label>
+                  <input type="checkbox" name="langs[]" value='JavaScript'>
+                  <label>SQL</label>
+                  <input type="checkbox" name="langs[]" value='SQL'>
+              </fieldset>
+              <div>
+                <input type='button' name='retrieve' onclick='getGists()' value='Get Gists'>
+              </div>
+            </section>
+		</header>
+				
+		<main>
+			<div class="innertube">
+				
+				<h1>Retrieved Results</h1>
+				<section id="get_section">
+				  <table id="get_table">
+				     <tbody id="get_tbody"></tbody>
+				  </table>
+				</section>				
+			</div>
+		</main>
+
+		<nav id="nav">
+			<div class="innertube">
+				<h1>Favorites</h1>
+				<section id="fave_section">
+				</section>				  
+		</nav>	
+		
+	</body>
+</html>
